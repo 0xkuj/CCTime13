@@ -29,6 +29,7 @@ int labelSize = 75;
 - (UIDeviceOrientation)_frontMostAppOrientation;
 @end
 
+/* Load preferences after change */
 static void loadPrefs() {
 	NSMutableDictionary* mainPreferenceDict = [[NSMutableDictionary alloc] initWithContentsOfFile:GENERAL_PREFS];
 	isEnabled = [mainPreferenceDict objectForKey:@"isEnabled"] ? [[mainPreferenceDict objectForKey:@"isEnabled"] boolValue] : YES;
@@ -49,6 +50,7 @@ static void loadPrefs() {
 	}
 }
 
+/* Calculate status bar changes when the status bar is ready in the CC */
 %hook _UIStatusBarForegroundView 
 - (void)layoutSubviews {
 	%orig;
@@ -73,6 +75,7 @@ static void loadPrefs() {
 }
 %end
 
+/* Add the label of the clock */
 %hook CCUIStatusBar
 - (void)layoutSubviews {
 	%orig;
