@@ -1,6 +1,7 @@
 /* This tweak will add a clock to your control center for easy access.
  * Clock position is configurable from settings 
  * Made by: 0xkuj */
+#include <RemoteLog.h>
 #define GENERAL_PREFS @"/var/mobile/Library/Preferences/com.0xkuj.cctime13pref.plist"
 
 static float XaxisREG = -1;
@@ -13,7 +14,7 @@ static int countREG;
 static int countORI;
 UILabel *CCTime;
 static BOOL isEnabled;
-int labelSize = 75;
+int labelSize = 100;
 
 
 @interface _UIStatusBarForegroundView 
@@ -59,14 +60,14 @@ static void loadPrefs() {
 	}
 	if (posCalcREG){
 		if (XaxisREG == -1)
-			XaxisREG = self.center.x/1.10; 
+			XaxisREG = self.center.x/1.20; 
 		if (YaxisREG == -1)
 			YaxisREG = self.center.y/1.85;
 		posCalcREG = FALSE;
 		countREG++;
 	} else if (posCalcORI) {
 		if (XaxisORI == -1)
-			XaxisORI = self.center.x/1.10; 
+			XaxisORI = self.center.x/1.20; 
 		if (YaxisORI == -1)
 			YaxisORI = self.center.y/1.85;
 		posCalcORI = FALSE;
@@ -92,23 +93,28 @@ static void loadPrefs() {
 		posCalcORI = TRUE;
 		return;
 	}
-			NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-			[dateFormatter setDateFormat:@"hh:mm a"];
-			if (CCTime) {
-				[CCTime removeFromSuperview];
-			}		
-			if (currOrientation == UIDeviceOrientationPortrait) {
-				CCTime = [[UILabel alloc] initWithFrame:CGRectMake(XaxisREG, YaxisREG, labelSize, 20)];
-			}
-			else {
-				CCTime = [[UILabel alloc] initWithFrame:CGRectMake(XaxisORI, YaxisORI, labelSize, 20)];
-			}
-		
-			[CCTime setTextColor:[UIColor whiteColor]];
-			[CCTime setFont:[UIFont systemFontOfSize:15 weight:UIFontWeightMedium]];
-			CCTime.text = [dateFormatter stringFromDate: [NSDate date]];
-			CCTime.textAlignment = NSTextAlignmentCenter;
-			[self addSubview:CCTime];
+
+	NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
+    [formatter setLocale:[NSLocale currentLocale]];
+    [formatter setDateStyle:NSDateFormatterNoStyle];
+    [formatter setTimeStyle:NSDateFormatterShortStyle];
+
+	if (CCTime) {
+		[CCTime removeFromSuperview];
+	}		
+	if (currOrientation == UIDeviceOrientationPortrait) {
+		CCTime = [[UILabel alloc] initWithFrame:CGRectMake(XaxisREG, YaxisREG, labelSize, 20)];
+	}
+	else {
+		CCTime = [[UILabel alloc] initWithFrame:CGRectMake(XaxisORI, YaxisORI, labelSize, 20)];
+	}
+
+	[CCTime setTextColor:[UIColor whiteColor]];
+	[CCTime setFont:[UIFont systemFontOfSize:15 weight:UIFontWeightMedium]];
+	CCTime.text = [formatter stringFromDate:[NSDate date]];
+	[formatter release];
+	CCTime.textAlignment = NSTextAlignmentCenter;
+	[self addSubview:CCTime];
 			
 	%orig;
 }
