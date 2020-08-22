@@ -5,7 +5,7 @@
 	<key>entry</key>
 	<dict>
 		<key>bundle</key>
-		<string>CCTime13</string>
+		<string>CCTime13Pref</string>
 		<key>cell</key>
 		<string>PSLinkCell</string>
 		<key>detail</key>
