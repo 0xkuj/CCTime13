@@ -1,7 +1,7 @@
 /* This tweak will add a clock to your control center for easy access.
  * Clock position is configurable from settings 
  * Made by: 0xkuj */
-#include <RemoteLog.h>
+//#include <RemoteLog.h>
 #define GENERAL_PREFS @"/var/mobile/Library/Preferences/com.0xkuj.cctime13pref.plist"
 
 static float XaxisREG = -1;
@@ -15,7 +15,14 @@ static int countORI;
 UILabel *CCTime;
 static BOOL isEnabled;
 int labelSize = 100;
+static BOOL dismissingCC = FALSE;
 
+
+@interface SBControlCenterController
+-(BOOL)isPresented;
+-(BOOL)isPresentedOrDismissing;
+-(BOOL)isVisible;
+@end
 
 @interface _UIStatusBarForegroundView 
 @property (assign, nonatomic) CGPoint center;
@@ -76,11 +83,25 @@ static void loadPrefs() {
 }
 %end
 
+%hook SBControlCenterController
+- (void)_willPresent {
+	%orig;
+	dismissingCC = FALSE;
+}
+- (void)_willDismiss {
+	%orig;
+	dismissingCC = TRUE;
+	if (CCTime) {
+		[CCTime removeFromSuperview];
+	}
+}
+%end
+
 /* Add the label of the clock */
 %hook CCUIStatusBar
 - (void)layoutSubviews {
 	%orig;
-	if (!isEnabled) {
+	if (!isEnabled || dismissingCC) {
     	return;	
 	}
 
@@ -93,7 +114,11 @@ static void loadPrefs() {
 		posCalcORI = TRUE;
 		return;
 	}
-
+	/*
+	NSDateFormatter* estDf = [[NSDateFormatter alloc] init];
+	[estDf setDateFormat:@"dd/MM"];
+	NSString *timeStr = [estDf stringFromDate:[NSDate date]];
+	*/
 	NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
     [formatter setLocale:[NSLocale currentLocale]];
     [formatter setDateStyle:NSDateFormatterNoStyle];
@@ -108,14 +133,24 @@ static void loadPrefs() {
 	else {
 		CCTime = [[UILabel alloc] initWithFrame:CGRectMake(XaxisORI, YaxisORI, labelSize, 20)];
 	}
-
+	/*
+	[CCTime setTextColor:[UIColor whiteColor]];
+	[CCTime setFont:[UIFont systemFontOfSize:15 weight:UIFontWeightMedium]];
+	NSString* time = [formatter stringFromDate:[NSDate date]];
+	NSString* date = timeStr;
+	CCTime.numberOfLines = 0;
+	CCTime.text = [NSString stringWithFormat:@"%@\n%@", time, date];
+	[formatter release];
+	CCTime.textAlignment = NSTextAlignmentCenter;
+	[self addSubview:CCTime];
+	*/
 	[CCTime setTextColor:[UIColor whiteColor]];
 	[CCTime setFont:[UIFont systemFontOfSize:15 weight:UIFontWeightMedium]];
 	CCTime.text = [formatter stringFromDate:[NSDate date]];
 	[formatter release];
 	CCTime.textAlignment = NSTextAlignmentCenter;
 	[self addSubview:CCTime];
-			
+					
 	%orig;
 }
 %end

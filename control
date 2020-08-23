@@ -1,7 +1,7 @@
 Package: com.0xkuj.cctime13
 Name: CCTime13
 Depends: mobilesubstrate, firmware (>= 13.0)
-Version: 1.0.3
+Version: 1.0.5
 Architecture: iphoneos-arm
 Description: Add clock to your Control Center
 Maintainer: 0xkuj
