@@ -5,6 +5,7 @@ CCTime13Pref_FILES = CCTRootListController.m
 CCTime13Pref_INSTALL_PATH = /Library/PreferenceBundles
 CCTime13Pref_FRAMEWORKS = UIKit
 CCTime13Pref_PRIVATE_FRAMEWORKS = Preferences
+CCTime13Pref_LIBRARIES = colorpicker
 
 include $(THEOS_MAKE_PATH)/bundle.mk
 

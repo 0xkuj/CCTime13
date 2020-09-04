@@ -1,4 +1,5 @@
 #include "CCTRootListController.h"
+#include <RemoteLog.h>
 #include <spawn.h>
 
 @interface UIScreen (kuj)
@@ -6,6 +7,7 @@
 @end
 
 @implementation CCTRootListController
+/* variable to take the edge of the screen */
 int labelSize = 75;
 /* load all specifiers from plist file */
 - (NSMutableArray*)specifiers {
@@ -15,6 +17,15 @@ int labelSize = 75;
 	}
 
 	return (NSMutableArray*)_specifiers;
+}
+
+- (void)loadView {
+    [super loadView];
+    ((UITableView *)[self table]).keyboardDismissMode = UIScrollViewKeyboardDismissModeOnDrag;
+}
+
+-(void)_returnKeyPressed:(id)arg1 {
+    [self.view endEditing:YES];
 }
 
 /* actually remove them when disabled */
@@ -50,7 +61,6 @@ int labelSize = 75;
 	}
 }
 
-
 /* save a copy of those specifications so we can retrieve them later */
 - (void)applyModificationsToSpecifiers:(NSMutableArray*)specifiers
 {
@@ -74,10 +84,13 @@ int labelSize = 75;
 		[self reloadSpecifierID:specifier.identifier animated:YES];
 		return value;
 }
+
 - (void)setPreferenceValue:(id)value specifier:(PSSpecifier*)specifier {
 	/* very ugly hack to have the specifier thinks he changes his value. will fix that later on (lol) */
 	float newValue = -1;
-	if ([specifier.identifier isEqualToString:@"XAXISREG"] && [value floatValue] > [UIScreen mainScreen].bounds.size.width) {
+	if ([specifier.identifier isEqualToString:@"styleSeparator"]) {
+		value = ([(NSString *)value isEqual:@""]) ? @"/" : [value substringToIndex:1];
+	} else if ([specifier.identifier isEqualToString:@"XAXISREG"] && [value floatValue] > [UIScreen mainScreen].bounds.size.width) {
 		newValue = [UIScreen mainScreen].bounds.size.width;
 	} else if ([specifier.identifier isEqualToString:@"YAXISREG"] && [value floatValue] > [UIScreen mainScreen].bounds.size.height) {
 		newValue = [UIScreen mainScreen].bounds.size.height-30;
@@ -117,12 +130,9 @@ int labelSize = 75;
 			}
 		}
 	}
-
-
 }
 
 -(void)defaultsettings:(PSSpecifier*)specifier {
-	HBLogDebug(@"omriku inside defualts. specifier %@", specifier);
 	UIAlertController* alertController = [UIAlertController alertControllerWithTitle:@"Confirmation"
     									                    message:@"This will restore CCTime Settings to default\nAre you sure?" 
     														preferredStyle:UIAlertControllerStyleAlert];

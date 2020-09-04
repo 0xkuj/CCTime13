@@ -1,21 +1,22 @@
 /* This tweak will add a clock to your control center for easy access.
  * Clock position is configurable from settings 
  * Made by: 0xkuj */
-//#include <RemoteLog.h>
+#import <libcolorpicker.h>
 #define GENERAL_PREFS @"/var/mobile/Library/Preferences/com.0xkuj.cctime13pref.plist"
+#define UNSET_NUM -100
+#define LABEL_WIDTH 100
+#define LABEL_HEIGHT 45
 
-static float XaxisREG = -1;
-static float YaxisREG = -1;
-static float XaxisORI = -1;
-static float YaxisORI = -1;
-BOOL posCalcREG = FALSE;
-BOOL posCalcORI = FALSE;
-static int countREG;
-static int countORI;
+static float XaxisREG = UNSET_NUM, YaxisREG = UNSET_NUM, XaxisORI = UNSET_NUM, YaxisORI = UNSET_NUM;
+static BOOL isEnabled, dismissingCC = FALSE;
+BOOL posCalcREG = FALSE, posCalcORI = FALSE, isBold = FALSE, setDate = FALSE, setAltDate = FALSE;
+static int countREG, countORI;
+int labelWidth = LABEL_WIDTH, labelHeight = LABEL_HEIGHT;
 UILabel *CCTime;
-static BOOL isEnabled;
-int labelSize = 100;
-static BOOL dismissingCC = FALSE;
+UIColor* textColor;
+UIFont* textFont;
+NSString* textFontString,*dateSeparator,*colorHex;
+float xcenterREG=0,ycenterREG=0,xcenterORI=0,ycenterORI=0,textSize;
 
 
 @interface SBControlCenterController
@@ -27,9 +28,11 @@ static BOOL dismissingCC = FALSE;
 @interface _UIStatusBarForegroundView 
 @property (assign, nonatomic) CGPoint center;
 @end
+
 @interface _UIStatusBar 
 @property (nonatomic,retain) UIView * foregroundView;  
 @end
+
 @interface CCUIStatusBar : UIView
 @end
 
@@ -56,6 +59,36 @@ static void loadPrefs() {
 	if ([mainPreferenceDict objectForKey:@"YAXISORI"] != nil) {
 		YaxisORI = [[mainPreferenceDict objectForKey:@"YAXISORI"] floatValue];
 	}
+	if ([mainPreferenceDict objectForKey:@"styleBold"] != nil) {
+		isBold = [[mainPreferenceDict objectForKey:@"styleBold"] boolValue];
+	}
+
+	if ([mainPreferenceDict objectForKey:@"styleColor"] != nil) {
+		colorHex = [mainPreferenceDict objectForKey:@"styleColor"];
+	}
+	
+	if ([mainPreferenceDict objectForKey:@"styleSize"] != nil) {
+		textSize = [[mainPreferenceDict objectForKey:@"styleSize"] floatValue];
+	} else {
+		textSize = 15.0f;
+	}
+
+	if ([mainPreferenceDict objectForKey:@"styleFont"] != nil) {
+		textFontString = [mainPreferenceDict objectForKey:@"styleFont"];
+		textFont = [UIFont fontWithName:textFontString size:textSize];
+	} else {
+		textFont = [UIFont systemFontOfSize:textSize weight:UIFontWeightMedium];
+	}
+
+	if ([mainPreferenceDict objectForKey:@"setDate"] != nil) {
+		setDate =  [[mainPreferenceDict objectForKey:@"setDate"] boolValue];
+	}
+	dateSeparator = [mainPreferenceDict objectForKey:@"styleSeparator"] ? [mainPreferenceDict objectForKey:@"styleSeparator"] : @"/";
+
+	if ([mainPreferenceDict objectForKey:@"setAltDate"] != nil) {
+		setAltDate =  [[mainPreferenceDict objectForKey:@"setAltDate"] boolValue];
+	}
+
 }
 
 /* Calculate status bar changes when the status bar is ready in the CC */
@@ -65,20 +98,25 @@ static void loadPrefs() {
 	if (!isEnabled) {
         return;	
 	}
+
 	if (posCalcREG){
-		if (XaxisREG == -1)
-			XaxisREG = self.center.x/1.20; 
-		if (YaxisREG == -1)
-			YaxisREG = self.center.y/1.85;
 		posCalcREG = FALSE;
 		countREG++;
+		if (xcenterREG != 0)
+		{
+			return;
+		}
+		xcenterREG = self.center.x;
+		ycenterREG = self.center.y;
 	} else if (posCalcORI) {
-		if (XaxisORI == -1)
-			XaxisORI = self.center.x/1.20; 
-		if (YaxisORI == -1)
-			YaxisORI = self.center.y/1.85;
 		posCalcORI = FALSE;
 		countORI++;
+		if (xcenterORI != 0)
+		{
+			return;
+		}
+		xcenterORI = self.center.x;
+		ycenterORI = self.center.y;
 	}
 }
 %end
@@ -114,41 +152,58 @@ static void loadPrefs() {
 		posCalcORI = TRUE;
 		return;
 	}
-	/*
-	NSDateFormatter* estDf = [[NSDateFormatter alloc] init];
-	[estDf setDateFormat:@"dd/MM"];
-	NSString *timeStr = [estDf stringFromDate:[NSDate date]];
-	*/
-	NSDateFormatter *formatter = [[NSDateFormatter alloc] init];
-    [formatter setLocale:[NSLocale currentLocale]];
-    [formatter setDateStyle:NSDateFormatterNoStyle];
-    [formatter setTimeStyle:NSDateFormatterShortStyle];
 
 	if (CCTime) {
 		[CCTime removeFromSuperview];
-	}		
+	}
+
 	if (currOrientation == UIDeviceOrientationPortrait) {
-		CCTime = [[UILabel alloc] initWithFrame:CGRectMake(XaxisREG, YaxisREG, labelSize, 20)];
+		CCTime = [[UILabel alloc] initWithFrame:CGRectMake((XaxisREG != UNSET_NUM) ? XaxisREG : xcenterREG/1.20f, (YaxisREG != UNSET_NUM) ? YaxisREG : (setDate) ? ycenterREG/3.4f : 0, labelWidth, labelHeight)];
 	}
 	else {
-		CCTime = [[UILabel alloc] initWithFrame:CGRectMake(XaxisORI, YaxisORI, labelSize, 20)];
+		CCTime = [[UILabel alloc] initWithFrame:CGRectMake((XaxisORI != UNSET_NUM) ? XaxisORI : xcenterORI, (YaxisORI != UNSET_NUM) ? YaxisORI : (setDate) ? ycenterORI/3.4f : 0, labelWidth, labelHeight)];
 	}
-	/*
-	[CCTime setTextColor:[UIColor whiteColor]];
-	[CCTime setFont:[UIFont systemFontOfSize:15 weight:UIFontWeightMedium]];
-	NSString* time = [formatter stringFromDate:[NSDate date]];
-	NSString* date = timeStr;
-	CCTime.numberOfLines = 0;
-	CCTime.text = [NSString stringWithFormat:@"%@\n%@", time, date];
-	[formatter release];
+
+	NSString *dateString = @"";
+	NSDateFormatter *clockFormatter = [[NSDateFormatter alloc] init];
+    [clockFormatter setLocale:[NSLocale currentLocale]];
+    [clockFormatter setDateStyle:NSDateFormatterNoStyle];
+    [clockFormatter setTimeStyle:NSDateFormatterShortStyle];
+	NSString *time = [NSString stringWithFormat:@"%@\n", [clockFormatter stringFromDate:[NSDate date]]];
+
+	if (setDate) {
+		CCTime.numberOfLines = 0;
+		NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
+		
+		if (setAltDate) {
+			[dateFormatter setDateFormat:[NSString stringWithFormat:@"dd%@MM",dateSeparator]];
+		} else {
+			NSString *localFormat = [NSDateFormatter dateFormatFromTemplate:@"MMM dd" options:0 locale:[NSLocale currentLocale]];
+			[dateFormatter setDateFormat:localFormat];
+		}
+		
+		[dateFormatter setLocale:[NSLocale currentLocale]];
+		NSDate *currentDate = [NSDate date];
+		dateString = [dateFormatter stringFromDate:currentDate];
+		[dateFormatter release];
+	}
+
+	/* setting the actual label text */
+	CCTime.text = [time stringByAppendingString:dateString];
+
+	if (isBold) {
+		CCTime.attributedText=[[NSAttributedString alloc] 
+		initWithString:CCTime.text
+		attributes:@{
+    	         NSStrokeWidthAttributeName: @-4.0
+    	         }
+		];
+	}
+
+	[CCTime setFont:textFont];
+	CCTime.textColor = LCPParseColorString(colorHex, @"#FFFFFF");
 	CCTime.textAlignment = NSTextAlignmentCenter;
-	[self addSubview:CCTime];
-	*/
-	[CCTime setTextColor:[UIColor whiteColor]];
-	[CCTime setFont:[UIFont systemFontOfSize:15 weight:UIFontWeightMedium]];
-	CCTime.text = [formatter stringFromDate:[NSDate date]];
-	[formatter release];
-	CCTime.textAlignment = NSTextAlignmentCenter;
+	[clockFormatter release];
 	[self addSubview:CCTime];
 					
 	%orig;
