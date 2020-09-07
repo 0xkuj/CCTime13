@@ -9,13 +9,13 @@
 
 static float XaxisREG = UNSET_NUM, YaxisREG = UNSET_NUM, XaxisORI = UNSET_NUM, YaxisORI = UNSET_NUM;
 static BOOL isEnabled, dismissingCC = FALSE;
-BOOL posCalcREG = FALSE, posCalcORI = FALSE, isBold = FALSE, setDate = FALSE, setAltDate = FALSE;
+BOOL posCalcREG = FALSE, posCalcORI = FALSE, isBold = FALSE, setDate = FALSE, setCustomDate = FALSE;
 static int countREG, countORI;
 int labelWidth = LABEL_WIDTH, labelHeight = LABEL_HEIGHT;
 UILabel *CCTime;
 UIColor* textColor;
 UIFont* textFont;
-NSString* textFontString,*dateSeparator,*colorHex;
+NSString* textFontString,*dateSeparator,*colorHex, *customDate;
 float xcenterREG=0,ycenterREG=0,xcenterORI=0,ycenterORI=0,textSize;
 
 
@@ -83,10 +83,10 @@ static void loadPrefs() {
 	if ([mainPreferenceDict objectForKey:@"setDate"] != nil) {
 		setDate =  [[mainPreferenceDict objectForKey:@"setDate"] boolValue];
 	}
-	dateSeparator = [mainPreferenceDict objectForKey:@"styleSeparator"] ? [mainPreferenceDict objectForKey:@"styleSeparator"] : @"/";
+	customDate = [mainPreferenceDict objectForKey:@"styleCustomDate"] ? [mainPreferenceDict objectForKey:@"styleCustomDate"] : @"MMM dd";
 
-	if ([mainPreferenceDict objectForKey:@"setAltDate"] != nil) {
-		setAltDate =  [[mainPreferenceDict objectForKey:@"setAltDate"] boolValue];
+	if ([mainPreferenceDict objectForKey:@"setCustomDate"] != nil) {
+		setCustomDate =  [[mainPreferenceDict objectForKey:@"setCustomDate"] boolValue];
 	}
 
 }
@@ -175,11 +175,11 @@ static void loadPrefs() {
 		CCTime.numberOfLines = 0;
 		NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
 		
-		if (setAltDate) {
-			[dateFormatter setDateFormat:[NSString stringWithFormat:@"dd%@MM",dateSeparator]];
+		if (setCustomDate && customDate.length) {
+			NSString *localFormat = [NSDateFormatter dateFormatFromTemplate:customDate options:0 locale:[NSLocale currentLocale]];
+			[dateFormatter setDateFormat:localFormat];	
 		} else {
-			NSString *localFormat = [NSDateFormatter dateFormatFromTemplate:@"MMM dd" options:0 locale:[NSLocale currentLocale]];
-			[dateFormatter setDateFormat:localFormat];
+			[dateFormatter setDateFormat:@"MMM dd"];
 		}
 		
 		[dateFormatter setLocale:[NSLocale currentLocale]];

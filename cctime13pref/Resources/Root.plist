@@ -56,11 +56,11 @@
 			<key>defaults</key>
 			<string>com.0xkuj.cctime13pref</string>
 			<key>key</key>
-			<string>setAltDate</string>
+			<string>setCustomDate</string>
 			<key>PostNotification</key>
 			<string>com.0xkuj.cctime13pref.settingschanged</string>
 			<key>label</key>
-			<string>Set Alternative Date (dd/mm)</string>
+			<string>Custom Date</string>
 			<key>nestedEntryCount</key>
 			<integer>2</integer>
 		</dict>
@@ -68,7 +68,7 @@
 			<key>cell</key>
 			<string>PSStaticTextCell</string>
 			<key>label</key>
-			<string>Date Separator (Default: ' / ')</string>
+			<string>Date Expression (Default: 'MMM dd')</string>
 		</dict>
 		<dict>
 			<key>cell</key>
@@ -76,9 +76,9 @@
 			<key>defaults</key>
 			<string>com.0xkuj.cctime13pref</string>
 			<key>key</key>
-			<string>styleSeparator</string>
+			<string>styleCustomDate</string>
 			<key>placeholder</key>
-			<string>Examples: ' / ',' . ',' - ' or any other symbol</string>
+			<string>Example: dd/mm, MM-dd-yyyy</string>
 			<key>PostNotification</key>
 			<string>com.0xkuj.cctime13pref.settingschanged</string>
 		</dict>
@@ -334,7 +334,7 @@
 			<key>cell</key>
 			<string>PSGroupCell</string>
 			<key>footerText</key>
-			<string>Made by: 0xkuj | v1.2</string>
+			<string>Made by: 0xkuj | v1.2.2</string>
 		</dict>
 	</array>
 	<key>title</key>

@@ -6,6 +6,7 @@ CCTime13Pref_INSTALL_PATH = /Library/PreferenceBundles
 CCTime13Pref_FRAMEWORKS = UIKit
 CCTime13Pref_PRIVATE_FRAMEWORKS = Preferences
 CCTime13Pref_LIBRARIES = colorpicker
+CCTime13Pref_EXTRA_FRAMEWORKS += CepheiPrefs
 
 include $(THEOS_MAKE_PATH)/bundle.mk
 
