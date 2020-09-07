@@ -1,6 +1,6 @@
 Package: com.0xkuj.cctime13
 Name: CCTime13
-Depends: mobilesubstrate, org.thebigboss.libcolorpicker, firmware (>= 13.0) 
+Depends: mobilesubstrate, org.thebigboss.libcolorpicker, firmware (>= 13.0), ws.hbang.common (>= 1.15)
 Version: 1.2.2
 Architecture: iphoneos-arm
 Description: Add clock to your Control Center
