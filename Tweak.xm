@@ -176,15 +176,12 @@ static void loadPrefs() {
 		NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
 		
 		if (setCustomDate && customDate.length) {
-			NSString *localFormat = [NSDateFormatter dateFormatFromTemplate:customDate options:0 locale:[NSLocale currentLocale]];
-			[dateFormatter setDateFormat:localFormat];	
+			[dateFormatter setDateFormat:customDate];	
 		} else {
 			[dateFormatter setDateFormat:@"MMM dd"];
 		}
-		
-		[dateFormatter setLocale:[NSLocale currentLocale]];
-		NSDate *currentDate = [NSDate date];
-		dateString = [dateFormatter stringFromDate:currentDate];
+
+		dateString = [dateFormatter stringFromDate:[NSDate date]];
 		[dateFormatter release];
 	}
 
