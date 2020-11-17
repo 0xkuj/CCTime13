@@ -4,6 +4,7 @@ include $(THEOS)/makefiles/common.mk
 TWEAK_NAME = CCTime13
 CCTime13_FILES = Tweak.xm
 CCTime13_LIBRARIES = colorpicker
+CCTime13_CFLAGS = -fobjc-arc
 
 
 include $(THEOS_MAKE_PATH)/tweak.mk
